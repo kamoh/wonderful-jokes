@@ -38,10 +38,12 @@ end
 def knock_knock_tweet
   # Below is for production
 
-  # @knock_knock_tweet ||= $client.search("knock OR knocks OR knocking OR knocked", result_type: "recent").take(5).detect { |tw| tw.retweeted_status.nil? && !@already_knock_knocked_tweet_ids.include?(tw.id) }
+  @knock_knock_tweet ||= $client.search("knock OR knocks OR knocking OR knocked", result_type: "recent").take(5).detect do |tw|
+      tw.retweeted_status.nil? && !@already_knock_knocked_tweet_ids.include?(tw.id)
+    end
 
   # Use this tweet for testing
-  @knock_knock_tweet ||= $client.status(636390214617972736) if !@already_knock_knocked_tweet_ids.include?($client.status(636390214617972736).id)
+  # @knock_knock_tweet ||= $client.status(636390214617972736) if !@already_knock_knocked_tweet_ids.include?($client.status(636390214617972736).id)
 end
 
 def tweet_words_and_snoop_dog
