@@ -53,14 +53,14 @@ def tweet_words_and_snoop_dog
 end
 
 def collect_knock_and_snoop_tweets
-  @knock_tweets = []
+  @word_tweets  = []
   @snoop_tweets = []
 
   # mentions_timeline returns an array of the most recent 20 mentions
   $client.mentions_timeline.each do |mention|
     if mention.in_reply_to_screen_name == 'wonderfuljokes'
       if mention.text.include?('ther') && !@already_random_word_tweet_ids.include?(mention.id)
-        @knock_tweets << mention
+        @word_tweets << mention
       elsif mention.text.include?('who') && !mention.text.include?('ther') && !@already_snoop_dogged_tweet_ids.include?(mention.id)
         @snoop_tweets << mention
       end
@@ -69,7 +69,7 @@ def collect_knock_and_snoop_tweets
 end
 
 def send_random_word_tweet
-  @knock_tweets.each do |tweet|
+  @word_tweets.each do |tweet|
     puts "Tweeting a random word to @#{tweet.user.screen_name} in reply to #{tweet.id}..."
 
     $client.update("@#{tweet.user.screen_name} #{random_word_from_wordnik}", {in_reply_to_status_id: tweet.id})
