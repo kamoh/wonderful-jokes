@@ -1,6 +1,6 @@
 desc "Tweet"
 
-task :tweet => :environment do
+task :tweet_wonderful_jokes => :environment do
   # Don't tweet if it's late, adjusted for Heroku time 4 hours ahead
   # if Time.now.hour >= 12
     compile_already_used_tweet_ids
@@ -28,7 +28,7 @@ end
 
 def tweet_knock_knock
   if knock_knock_tweet
-    puts "Tweeting to @#{knock_knock_tweet.user.screen_name} in reply to #{knock_knock_tweet.id}..."
+    puts "Tweeting knock knock to @#{knock_knock_tweet.user.screen_name} in reply to #{knock_knock_tweet.id}..."
     $client.update("@#{knock_knock_tweet.user.screen_name} Knock knock", {in_reply_to_status_id: knock_knock_tweet.id})
   else
     puts "No knock knock-provoking tweet was found, no tweet was sent."
@@ -87,5 +87,5 @@ def random_word_from_wordnik
   # Temp request for a random noun, will replace with API credentials when I get them
   endpoint = 'http://api.wordnik.com:80/v4/words.json/randomWord?hasDictionaryDef=false&includePartOfSpeech=noun&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5'
 
-  word = JSON.parse(Net::HTTP.get(URI.parse(endpoint)))['word']
+  word = JSON.parse(Net::HTTP.get(URI.parse(endpoint)))['word'].capitalize
 end
