@@ -9,19 +9,21 @@ task :tweet_wonderful_jokes => :environment do
   # end
 end
 
-def compile_already_used_tweet_ids
-  @already_knock_knocked_tweet_ids = []
-  @already_random_word_tweet_ids   = []
-  @already_snoop_dogged_tweet_ids  = []
+# Tweets older than the last 30 tweets so it doesn't tweet at old people again
 
-  # Collect the user's most recent 30 tweets and add the ids to an exclusion array
+def compile_already_used_tweet_ids
+  @already_knock_knocked_screen_names = []
+  @already_random_word_screen_names   = []
+  @already_snoop_dogged_screen_names  = []
+
+  # Collect the bot's most recent 30 tweets and add the screen names tweeted at to an exclusion array
   $client.user_timeline.first(30).each do |tweet|
     if tweet.text.include?('Knock knock')
-      @already_knock_knocked_tweet_ids << tweet.in_reply_to_status_id
+      @already_knock_knocked_screen_names << tweet.in_reply_to_screen_name
     elsif !tweet.text.include?('Snoop Dogg')
-      @already_random_word_tweet_ids << tweet.in_reply_to_status_id
+      @already_random_word_screen_names << tweet.in_reply_to_screen_name
     elsif tweet.text.include?('Snoop Dogg')
-      @already_snoop_dogged_tweet_ids << tweet.in_reply_to_status_id
+      @already_snoop_dogged_screen_names << tweet.in_reply_to_screen_name
     end
   end
 end
@@ -36,14 +38,15 @@ def tweet_knock_knock
 end
 
 def knock_knock_tweet
-  # Below is for production
+  # Use this for production
 
   @knock_knock_tweet ||= $client.search("knock OR knocks OR knocking OR knocked", result_type: "recent").take(5).detect do |tw|
-      tw.retweeted_status.nil? && !@already_knock_knocked_tweet_ids.include?(tw.id)
+      tw.retweeted_status.nil? && !@already_knock_knocked_screen_names.include?(tw.user.screen_name)
     end
 
-  # Use this tweet for testing
-  # @knock_knock_tweet ||= $client.status(636390214617972736) if !@already_knock_knocked_tweet_ids.include?($client.status(636390214617972736).id)
+  # Use this designated tweet for testing
+
+  # @knock_knock_tweet ||= $client.status(636390214617972736) if !@already_knock_knocked_screen_names.include?($client.status(636390214617972736).user.screen_name)
 end
 
 def tweet_words_and_snoop_dog
@@ -58,10 +61,11 @@ def collect_knock_and_snoop_tweets
 
   # mentions_timeline returns an array of the most recent 20 mentions
   $client.mentions_timeline.each do |mention|
+    # Is the below line redundant? Aren't mentions_timelines tweets going to be mentions related to the bot account?
     if mention.in_reply_to_screen_name == 'wonderfuljokes'
-      if mention.text.include?('ther') && !@already_random_word_tweet_ids.include?(mention.id)
+      if mention.text.downcase.include?('ther') && !@already_random_word_screen_names.include?(mention.user.screen_name)
         @word_tweets << mention
-      elsif mention.text.include?('who') && !mention.text.include?('ther') && !@already_snoop_dogged_tweet_ids.include?(mention.id)
+      elsif mention.text.downcase.include?('who') && !mention.text.downcase.include?('ther') && !@already_snoop_dogged_screen_names.include?(mention.user.screen_name)
         @snoop_tweets << mention
       end
     end
@@ -87,5 +91,7 @@ def random_word_from_wordnik
   # Temp request for a random noun, will replace with API credentials when I get them
   endpoint = 'http://api.wordnik.com:80/v4/words.json/randomWord?hasDictionaryDef=false&includePartOfSpeech=noun&minCorpusCount=0&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5'
 
-  word = JSON.parse(Net::HTTP.get(URI.parse(endpoint)))['word'].capitalize
+  response = Net::HTTP.get(URI.parse(endpoint))
+  word = JSON.parse(response)['word']
+  word.capitalize
 end
