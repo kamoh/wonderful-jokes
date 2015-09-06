@@ -1,3 +1,5 @@
+require_relative '../helpers/snoop_facts'
+
 desc "Tweet"
 
 task :tweet_wonderful_jokes => :environment do
@@ -84,7 +86,7 @@ end
 def send_snoop_tweet
   @snoop_tweets.each do |tweet|
     puts "Tweeting snoop facts to @#{tweet.user.screen_name} in reply to #{tweet.id}..."
-    $client.update("@#{tweet.user.screen_name} Snoop Dogg had a hit record in 1997", {in_reply_to_status_id: tweet.id})
+    $client.update("@#{tweet.user.screen_name} #{SNOOP_FACTS.sample}", {in_reply_to_status_id: tweet.id})
   end
 end
 
