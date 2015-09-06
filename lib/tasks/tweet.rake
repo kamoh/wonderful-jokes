@@ -58,11 +58,12 @@ end
 def collect_knock_and_snoop_tweets
   @word_tweets  = []
   @snoop_tweets = []
-
+  today = Time.now
   # mentions_timeline returns an array of the most recent 20 mentions
   $client.mentions_timeline.each do |mention|
     # Is the below line redundant? Aren't mentions_timelines tweets going to be mentions related to the bot account?
-    if mention.in_reply_to_screen_name == 'wonderfuljokes'
+    # Only reply to recent mentions to prevent over-tweeting
+    if mention.created_at > today - 2.days # && mention.in_reply_to_screen_name == 'wonderfuljokes'
       if mention.text.downcase.include?('ther') && !@already_random_word_screen_names.include?(mention.user.screen_name)
         @word_tweets << mention
       elsif mention.text.downcase.include?('who') && !mention.text.downcase.include?('ther') && !@already_snoop_dogged_screen_names.include?(mention.user.screen_name)
