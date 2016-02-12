@@ -1,3 +1,5 @@
+ruby "2.2.4"
+
 source 'https://rubygems.org'
 
 gem 'rails', '4.1.4'
@@ -16,6 +18,8 @@ end
 gem 'twitter'
 
 gem 'byebug'
+
+gem 'eventmachine', '>= 1.0.4'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
